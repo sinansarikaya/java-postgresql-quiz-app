@@ -1,7 +1,6 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class QuestionPgRepository implements Irepository {
     private final String URL = "jdbc:postgresql://localhost:5432/quiz";
@@ -27,7 +26,7 @@ public class QuestionPgRepository implements Irepository {
         }
     }
 
-    private void PreparedStatement(String sql) {
+    private void setPreparedStatement(String sql) {
         try {
             this.prst = conn.prepareStatement(sql);
         } catch (SQLException e) {
@@ -40,7 +39,7 @@ public class QuestionPgRepository implements Irepository {
         setConnection();
         String insertQuery =
                 "INSERT INTO questions(question,answer,option1,option2,option3,option4) VALUES(?,?,?,?,?,?)";
-        PreparedStatement(insertQuery);
+        setPreparedStatement(insertQuery);
         try {
             prst.setString(1, question.getQuestion());
             prst.setString(2, question.getAnswer());
@@ -62,19 +61,30 @@ public class QuestionPgRepository implements Irepository {
     }
 
     @Override
-    public void getQuestion(int id) {
+    public Question getQuestionById(int id) {
         setConnection();
         String getQuery = "SELECT * FROM questions WHERE id = ?";
-        PreparedStatement(getQuery);
+        setPreparedStatement(getQuery);
         try {
             prst.setInt(1, id);
-            ResultSet rs = prst.executeQuery();
-            while (rs.next()) {
-                //TODO: Ihtiyaca gore karar verecegiz.
-                //TODO: Okundu ibaresi konabilir
+            ResultSet rst = prst.executeQuery();
+            if (rst.next()) {
+                String question = rst.getString("question");
+                String answer = rst.getString("answer");
+                String option1 = rst.getString("option1");
+                String option2 = rst.getString("option2");
+                String option3 = rst.getString("option3");
+                String option4 = rst.getString("option4");
+
+                Question q = new Question(id, question, answer, option1, option2, option3, option4);
+                return q;
+            } else {
+                System.out.println("Id bulunamadi");
+                return null;
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return null;
         } finally {
             try {
                 prst.close();
@@ -84,8 +94,6 @@ public class QuestionPgRepository implements Irepository {
             }
         }
     }
-
-    Scanner inp = new Scanner(System.in);
 
     @Override
     public List<Question> getQuestions() {
@@ -121,37 +129,55 @@ public class QuestionPgRepository implements Irepository {
 
     @Override
     public void updateQuestion(Question question) {
-//        setConnection();
-//
-//        try {
-//
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        } finally {
-//            try {
-//
-//                conn.close();
-//            } catch (SQLException e) {
-//                System.out.println(e.getMessage());
-//            }
-//        }
+        setConnection();
+        String updateQuery = "UPDATE questions SET question = ?, answer = ?, option1 = ?, option2 = ?, option3 = ?, option4 = ? WHERE id = ?";
+        setPreparedStatement(updateQuery);
+        try {
+            prst.setString(1, question.getQuestion());
+            prst.setString(2, question.getAnswer());
+            prst.setString(3, question.getOption1());
+            prst.setString(4, question.getOption2());
+            prst.setString(5, question.getOption3());
+            prst.setString(6, question.getOption4());
+            prst.setInt(7, question.getId());
+
+            int result = prst.executeUpdate();
+            String sonuc = result > 0 ? "Soru guncellendi" : "Guncellemede hata olustu";
+            System.out.println(sonuc);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                prst.close();
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     @Override
     public void deleteQuestion(int id) {
-//        setConnection();
-//
-//        try {
-//
-//        } catch (SQLException e) {
-//            System.out.println(e.getMessage());
-//        } finally {
-//            try {
-//
-//                conn.close();
-//            } catch (SQLException e) {
-//                System.out.println(e.getMessage());
-//            }
-//        }
+        setConnection();
+        String deleteQuery = "DELETE FROM questions WHERE id = ?";
+        setPreparedStatement(deleteQuery);
+        try {
+            prst.setInt(1, id);
+            int result = prst.executeUpdate();
+            if (result > 0){
+                System.out.println("Silme islemi basarili.");
+            } else {
+                System.out.println("Silme islemi sirasinda hata olustu.");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 }
