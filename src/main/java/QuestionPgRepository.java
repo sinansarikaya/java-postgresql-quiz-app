@@ -1,7 +1,10 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class QuestionPgRepository implements Irepository {
-    private final String URL = "jdbc:postgresql://localhost:5432/questions";
+    private final String URL = "jdbc:postgresql://localhost:5432/quiz";
     private final String USER = "techpront";
     private final String PASSWORD = "password";
     private Connection conn;
@@ -66,7 +69,7 @@ public class QuestionPgRepository implements Irepository {
         try {
             prst.setInt(1, id);
             ResultSet rs = prst.executeQuery();
-            while (rs.next()){
+            while (rs.next()) {
                 //TODO: Ihtiyaca gore karar verecegiz.
                 //TODO: Okundu ibaresi konabilir
             }
@@ -82,10 +85,13 @@ public class QuestionPgRepository implements Irepository {
         }
     }
 
+    Scanner inp = new Scanner(System.in);
+
     @Override
-    public void getQuestions() {
+    public List<Question> getQuestions() {
         setConnection();
         setStatement();
+        List<Question> questions = new ArrayList<>();
         try {
             ResultSet rst = st.executeQuery("SELECT * FROM questions");
             while (rst.next()) {
@@ -96,13 +102,9 @@ public class QuestionPgRepository implements Irepository {
                 String option2 = rst.getString("option2");
                 String option3 = rst.getString("option3");
                 String option4 = rst.getString("option4");
-                System.out.println(id + " - " + question);
-                System.out.println("A - " + option1);
-                System.out.println("B - " + option2);
-                System.out.println("C - " + option3);
-                System.out.println("D - " + option4);
-                //TODO: Yukaridaki kodlar liste atilabilir
-                //TODO: cevap kontrolu
+
+                Question q = new Question(id, question, answer, option1, option2, option3, option4);
+                questions.add(q);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -114,6 +116,7 @@ public class QuestionPgRepository implements Irepository {
                 System.out.println(e.getMessage());
             }
         }
+        return questions;
     }
 
     @Override
