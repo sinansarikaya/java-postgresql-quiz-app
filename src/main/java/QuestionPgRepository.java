@@ -35,6 +35,31 @@ public class QuestionPgRepository implements Irepository {
     }
 
     @Override
+    public void createTable() {
+        setConnection();
+        setStatement();
+        try {
+            st.execute("CREATE TABLE IF NOT EXISTS  questions(" +
+                    "id SERIAL UNIQUE," +
+                    "question VARCHAR(100) NOT NULL," +
+                    "answer VARCHAR(1) NOT NULL," +
+                    "option1 VARCHAR(50) NOT NULL," +
+                    "option2 VARCHAR(50) NOT NULL," +
+                    "option3 VARCHAR(50) NOT NULL," +
+                    "option4 VARCHAR(50) NOT NULL)");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }finally {
+            try {
+                st.close();
+                conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Override
     public void insertQuestion(Question question) {
         setConnection();
         String insertQuery =

@@ -7,6 +7,10 @@ public class QuestionService {
     Question quiz = new Question();
     Scanner input = new Scanner(System.in);
 
+    public void newTable(){
+        repository.createTable();
+    }
+
     public void addQuestion() {
         System.out.println("Lütfen soru giriniz.");
         String question = input.nextLine();

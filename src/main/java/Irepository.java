@@ -1,6 +1,9 @@
 import java.util.List;
 
 public interface Irepository {
+
+    public void createTable();
+
     public void insertQuestion(Question question);
 
     public Question getQuestionById(int id);

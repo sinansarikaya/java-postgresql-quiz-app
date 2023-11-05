@@ -8,6 +8,7 @@ public class Menu {
 
     public void displayMenu() {
         while (isRun) {
+            questionService.newTable();
             System.out.println("=".repeat(30));
             System.out.println("MENU");
             System.out.println("1. Soru Ekle");
